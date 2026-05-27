@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MacroPhase — Open Beta</title>
+  <meta name="description" content="Sleek, agentic nutrition tracking with a local-first 22-tool AI coach. Try the MacroPhase Open Beta today.">
+  
+  <!-- Satoshi and Geist Sans Fonts -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,800,900&f[]=geist-sans@300,400,500,600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Reset and Layout CSS Variables */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    :root {
+      --bg: #0B0B0C;
+      --surface-deep: #111112;
+      --surface-card: #1E1E20;
+      --surface-elevated: #2A2A2C;
+      --border-subtle: #2E2E30;
+      
+      /* Primary Brand Color System (Single Accent Discipline) */
+      --accent: #8B5CF6; /* AccentPurple */
+      --accent-muted: #7B6FD4;
+      --accent-soft: rgba(139, 92, 246, 0.12);
+      
+      /* Semantic Colors */
+      --positive: #4CAF50; /* PositiveDelta */
+      
+      /* Typography Colors */
+      --text-primary: #FFFFFF;
+      --text-secondary: #A1A1A6;
+      --text-tertiary: #6C6C70;
+      
+      /* Design System Radius Constraints */
+      --radius-card: 20px;
+      --radius-pill: 18px;
+      --radius-button: 14px;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Ambient Glowing Background Blobs */
+    .glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 70%);
+      top: -10%;
+      left: -10%;
+    }
+    .glow-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(91, 143, 212, 0.1) 0%, transparent 70%);
+      bottom: -15%;
+      right: -10%;
+    }
+
+    /* Noise Texture Overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 48px 16px;
+      z-index: 5;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .logo-svg {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-muted));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
+    }
+    
+    .logo-text {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: -0.8px;
+    }
+    
+    .logo-beta-tag {
+      background-color: var(--accent-soft);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: #c4a8ff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.5px;
+    }
+
+    /* Split Grid for Desktop layout */
+    .grid-container {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      align-items: center;
+      gap: 48px;
+      padding: 0 48px;
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--positive);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--positive);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    h1 {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 900;
+      font-size: clamp(34px, 5.5vw, 60px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+    
+    .gradient-title {
+      background: linear-gradient(135deg, var(--text-primary) 50%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(14px, 1.8vw, 17px);
+      color: var(--text-secondary);
+      max-width: 500px;
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 36px;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+    }
+
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-muted));
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 16px 36px;
+      border-radius: var(--radius-button);
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.25);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
+    }
+    
+    .btn-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(139, 92, 246, 0.4);
+    }
+    
+    .btn-download:active {
+      transform: translateY(-1px);
+    }
+    
+    .btn-download svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s;
+    }
+    
+    .btn-download:hover svg {
+      transform: translateY(2px);
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.5px;
+      padding-left: 4px;
+    }
+
+    /* Standardized Pill Highlights Grid */
+    .highlights {
+      display: flex;
+      gap: 16px;
+      margin-top: 48px;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+    }
+    
+    .highlight-pill {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.25s, background-color 0.25s;
+    }
+    
+    .highlight-pill:hover {
+      border-color: rgba(139, 92, 246, 0.35);
+      background-color: var(--surface-elevated);
+      cursor: default;
+    }
+
+    /* Visual Mockups Column */
+    .visual-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+
+    .mockup-container {
+      position: relative;
+      width: 320px;
+      height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Sleek Phone Mockups */
+    .phone-mockup {
+      position: absolute;
+      width: 190px;
+      height: 395px;
+      background: #000000;
+      border-radius: 36px;
+      border: 4.5px solid var(--border-subtle);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), z-index 0.5s, border-color 0.5s, box-shadow 0.5s;
+    }
+
+    /* Custom screen images fitting properly */
+    .phone-mockup img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Dynamic Island notch */
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 54px;
+      height: 12px;
+      background: #000;
+      border-radius: 6px;
+      z-index: 10;
+    }
+
+    .phone-dashboard {
+      left: 0;
+      top: 10px;
+      z-index: 3;
+      transform: rotate(-5deg) translateY(0);
+    }
+
+    .phone-coach {
+      right: 0;
+      top: 35px;
+      z-index: 2;
+      transform: rotate(5deg) translateY(0);
+    }
+
+    /* Super fluid hover interactions */
+    .mockup-container:hover .phone-dashboard {
+      transform: rotate(0deg) translate(-20px, -15px);
+      z-index: 4;
+      border-color: rgba(139, 92, 246, 0.2);
+      box-shadow: 0 30px 70px rgba(139, 92, 246, 0.15), 0 25px 60px rgba(0,0,0,0.6);
+    }
+
+    .mockup-container:hover .phone-coach {
+      transform: rotate(0deg) translate(20px, 15px);
+      z-index: 5;
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 30px 70px rgba(139, 92, 246, 0.2), 0 25px 60px rgba(0,0,0,0.6);
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 48px 32px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 12px;
+      color: var(--text-tertiary);
+      z-index: 5;
+    }
+    
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+    
+    .footer-links svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive adjustments for 100vh constraint */
+    @media (max-width: 900px) {
+      body {
+        max-height: none;
+        overflow-y: auto;
+      }
+      .grid-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .hero-content {
+        align-items: center;
+        text-align: center;
+      }
+      .cta-container {
+        align-items: center;
+      }
+      .highlights {
+        justify-content: center;
+        margin-top: 36px;
+      }
+      .visual-preview {
+        margin-top: 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 24px 24px 10px;
+      }
+      footer {
+        padding: 20px 24px 24px;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .highlights {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .mockup-container {
+        width: 290px;
+        height: 400px;
+      }
+      .phone-mockup {
+        width: 170px;
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <header>
+    <a href="#" class="logo-container">
+      <div class="logo-svg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <span class="logo-text">MacroPhase</span>
+      <span class="logo-beta-tag">BETA</span>
+    </a>
+  </header>
+
+  <div class="grid-container">
+    <div class="hero-content">
+
+      <h1>
+        <span class="gradient-title">Nutrition tracking,<br>reimagined with agency.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        No subscriptions, no complex setup. Download the local-first beta of MacroPhase and experience a real 22-tool AI coach that works directly with your TDEE and food logs.
+      </p>
+
+      <div class="cta-container">
+        <a id="download-btn" href="https://github.com/MacroPhase/App/releases/download/v1.0.100032/MacroPhase-v1.0.100032-beta.apk" class="btn-download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download Beta APK
+        </a>
+        <span class="meta-info">Android APK · Free & Open Source · ~80MB</span>
+      </div>
+
+      <div class="highlights">
+        <div class="highlight-pill">
+          <span>🤖</span>
+          <span>22-Tool AI Coach</span>
+        </div>
+        <div class="highlight-pill">
+          <span>⚡</span>
+          <span>Dynamic TDEE</span>
+        </div>
+        <div class="highlight-pill">
+          <span>🔒</span>
+          <span>Local-First Memory</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual-preview">
+      <div class="mockup-container">
+        <!-- Phone 1: Dashboard -->
+        <div class="phone-mockup phone-dashboard">
+          <div class="phone-notch"></div>
+          <img src="img/maindashboard.webp" alt="MacroPhase Dashboard Screen">
+        </div>
+        
+        <!-- Phone 2: AI Coach -->
+        <div class="phone-mockup phone-coach">
+          <div class="phone-notch"></div>
+          <img src="img/phaseai.webp" alt="MacroPhase Phase AI Coach Screen">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>&copy; 2026 MacroPhase. Open Source.</span>
+    <div class="footer-links">
+      <a href="https://github.com/MacroPhase/App" target="_blank">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://discord.gg/qDCXcrFGwz" target="_blank">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.031.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Discord
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // Dynamically retrieve the latest release from GitHub API
+    const repo = "MacroPhase/App";
+    const apiUri = `https://api.github.com/repos/${repo}/releases/latest`;
+    
+    async function fetchLatestRelease() {
+      try {
+        const response = await fetch(apiUri);
+        if (!response.ok) throw new Error("Failed to fetch release info");
+        const data = await response.json();
+        
+        const version = data.tag_name; // e.g. "v1.0.100032"
+        const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
+        
+        if (apkAsset) {
+          const downloadUrl = apkAsset.browser_download_url;
+          
+          // Update download button href
+          const downloadBtn = document.getElementById("download-btn");
+          if (downloadBtn) {
+            downloadBtn.href = downloadUrl;
+          }
+          
+          // Update status badge version text
+          const versionBadge = document.getElementById("version-badge");
+          if (versionBadge) {
+            versionBadge.textContent = `${version} is live`;
+          }
+        }
+      } catch (error) {
+        console.warn("Could not retrieve latest release dynamically. Falling back to default URL.", error);
+      }
+    }
+    
+    document.addEventListener("DOMContentLoaded", fetchLatestRelease);
+  </script>
+</body>
+</html>
