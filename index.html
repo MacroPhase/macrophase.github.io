@@ -563,41 +563,50 @@
     </div>
   </footer>
 
-  <script>
-    // Dynamically retrieve the latest release from GitHub API
-    const repo = "MacroPhase/App";
-    const apiUri = `https://api.github.com/repos/${repo}/releases/latest`;
-    
-    async function fetchLatestRelease() {
-      try {
-        const response = await fetch(apiUri);
-        if (!response.ok) throw new Error("Failed to fetch release info");
-        const data = await response.json();
-        
-        const version = data.tag_name; // e.g. "v1.0.100032"
-        const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
-        
-        if (apkAsset) {
-          const downloadUrl = apkAsset.browser_download_url;
-          
-          // Update download button href
-          const downloadBtn = document.getElementById("download-btn");
-          if (downloadBtn) {
-            downloadBtn.href = downloadUrl;
-          }
-          
-          // Update status badge version text
-          const versionBadge = document.getElementById("version-badge");
-          if (versionBadge) {
-            versionBadge.textContent = `${version} is live`;
-          }
-        }
-      } catch (error) {
-        console.warn("Could not retrieve latest release dynamically. Falling back to default URL.", error);
+<script>
+  // Dynamically retrieve the latest tag from GitHub API
+  const repo = "MacroPhase/App";
+  const apiUri = `https://api.github.com/repos/${repo}/tags`;
+
+  async function fetchLatestRelease() {
+    try {
+      const response = await fetch(apiUri);
+      if (!response.ok) throw new Error("Failed to fetch tag info");
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        throw new Error("No tags found");
       }
+
+      const latestTag = data[0];
+      const version = latestTag.name; // e.g. "v1.0.100034"
+
+      // Construct APK URL manually
+      // change this path if your APK filename differs
+      const downloadUrl = `https://github.com/${repo}/releases/download/${version}/app-release.apk`;
+
+      // Update download button href
+      const downloadBtn = document.getElementById("download-btn");
+      if (downloadBtn) {
+        downloadBtn.href = downloadUrl;
+      }
+
+      // Update status badge version text
+      const versionBadge = document.getElementById("version-badge");
+      if (versionBadge) {
+        versionBadge.textContent = `${version} is live`;
+      }
+
+    } catch (error) {
+      console.warn(
+        "Could not retrieve latest version dynamically. Falling back to default URL.",
+        error
+      );
     }
-    
-    document.addEventListener("DOMContentLoaded", fetchLatestRelease);
-  </script>
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchLatestRelease);
+</script>
 </body>
 </html>
